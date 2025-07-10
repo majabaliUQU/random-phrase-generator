@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Random Phrase Generator</title>
+<style>
+    body {
+        font-family: sans-serif;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        margin: 0;
+        padding: 1em;
+        background-color: #f0f0f0;
+    }
+    textarea {
+        width: 90%;
+        max-width: 400px;
+        height: 150px;
+        margin: 10px 0;
+        font-size: 16px;
+        padding: 10px;
+    }
+    button {
+        padding: 10px 20px;
+        font-size: 18px;
+        margin: 10px;
+        cursor: pointer;
+    }
+    #result {
+        font-size: 24px;
+        margin-top: 20px;
+        text-align: center;
+    }
+</style>
+</head>
+<body>
+
+<h2>أدخل قائمة الكلمات الأولى:</h2>
+<textarea id="list1" placeholder="اكتب كل كلمة في سطر"></textarea>
+<button id="next1">التالي</button>
+
+<div id="secondStep" style="display:none;">
+    <h2>أدخل قائمة الكلمات الثانية:</h2>
+    <textarea id="list2" placeholder="اكتب كل كلمة في سطر"></textarea>
+    <button id="next2">التالي</button>
+</div>
+
+<div id="randomStep" style="display:none;">
+    <button id="randomButton">🎲 عشوائي</button>
+    <div id="result"></div>
+</div>
+
+<script>
+    const next1 = document.getElementById('next1');
+    const next2 = document.getElementById('next2');
+    const randomButton = document.getElementById('randomButton');
+    const secondStep = document.getElementById('secondStep');
+    const randomStep = document.getElementById('randomStep');
+    const result = document.getElementById('result');
+    let words1 = [];
+    let words2 = [];
+
+    next1.addEventListener('click', () => {
+        const text = document.getElementById('list1').value.trim();
+        words1 = text.split('\n').map(word => word.trim()).filter(word => word);
+        if (words1.length > 0) {
+            document.getElementById('list1').style.display = 'none';
+            next1.style.display = 'none';
+            secondStep.style.display = 'block';
+        } else {
+            alert('يرجى إدخال قائمة كلمات أولى على الأقل.');
+        }
+    });
+
+    next2.addEventListener('click', () => {
+        const text = document.getElementById('list2').value.trim();
+        words2 = text.split('\n').map(word => word.trim()).filter(word => word);
+        if (words2.length > 0) {
+            document.getElementById('list2').style.display = 'none';
+            next2.style.display = 'none';
+            secondStep.style.display = 'none';
+            randomStep.style.display = 'block';
+        } else {
+            alert('يرجى إدخال قائمة كلمات ثانية على الأقل.');
+        }
+    });
+
+    randomButton.addEventListener('click', () => {
+        const word1 = words1[Math.floor(Math.random() * words1.length)];
+        const word2 = words2[Math.floor(Math.random() * words2.length)];
+        result.textContent = `${word1} ${word2}`;
+    });
+</script>
+
+</body>
+</html>
