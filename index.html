@@ -3,14 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🎲 مولد الجمل العشوائية</title>
+<title>🎲 مولد الجمل العشوائية مع مؤقت</title>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
 </head>
 <body class="bg-dark text-light d-flex flex-column align-items-center justify-content-center min-vh-100 p-3">
 
 <div id="step1" class="text-center w-100">
     <h1 class="mb-3">🎲 مولد الجمل العشوائية</h1>
-    <p class="mb-4 fs-5">قم بإنشاء جمل ممتعة عشوائية عبر اختيار عدد الكلمات التي تريد للجملة أن تحتويها، ثم أدخل قوائم كلماتك الخاصة ليقوم الموقع بتركيب جملة عشوائية ممتعة في كل مرة تضغط فيها على زر العشوائي 🎲</p>
+    <p class="mb-4 fs-5">أنشئ جمل عشوائية ممتعة، واضغط بدأ لبدء مؤقت تلقائي يعرض جملة جديدة عند الانتهاء مع صوت تنبيه تلقائي.</p>
     <label for="wordCount" class="form-label fs-5">اختر عدد الكلمات في الجملة (بين ٢ إلى ١٠):</label>
     <select id="wordCount" class="form-select mb-3 w-50 mx-auto">
         <option value="2">٢</option>
@@ -28,81 +28,101 @@
 
 <div id="wordLists" style="display:none;" class="text-center w-100 p-3">
     <h2 class="mb-4">✍️ إدخال قوائم الكلمات</h2>
-    <p class="mb-4 fs-5">يرجى كتابة الكلمات في كل قائمة أدناه، كلمة في كل سطر، ليقوم الموقع بتركيب جمل عشوائية ممتعة عند الضغط على زر العشوائي.</p>
+    <p class="mb-4 fs-5">اكتب كلمة في كل سطر داخل كل قائمة.</p>
     <div id="listsContainer" class="d-flex flex-column gap-4 align-items-center"></div>
     <button id="generateButton" class="btn btn-success mt-4 px-5 py-2 fs-5">التالي 🚀</button>
 </div>
 
 <div id="randomStep" style="display:none;" class="text-center">
-    <button id="randomButton" class="btn btn-success mb-3">🎲 عشوائي</button>
+    <button id="startButton" class="btn btn-success mb-3">🎲 تغيير</button>
+    <div id="timer" class="fs-1 mb-3"></div>
     <div id="result" class="fs-3"></div>
 </div>
 
+<audio id="beepSound" src="https://actions.google.com/sounds/v1/alarms/bugle_tune.ogg" preload="auto"></audio>
+
 <script>
-    const step1 = document.getElementById('step1');
-    const wordLists = document.getElementById('wordLists');
-    const listsContainer = document.getElementById('listsContainer');
-    const generateButton = document.getElementById('generateButton');
-    const randomStep = document.getElementById('randomStep');
-    const randomButton = document.getElementById('randomButton');
-    const result = document.getElementById('result');
+const step1 = document.getElementById('step1');
+const wordLists = document.getElementById('wordLists');
+const listsContainer = document.getElementById('listsContainer');
+const generateButton = document.getElementById('generateButton');
+const randomStep = document.getElementById('randomStep');
+const startButton = document.getElementById('startButton');
+const timerDisplay = document.getElementById('timer');
+const result = document.getElementById('result');
+const beepSound = document.getElementById('beepSound');
+let wordArrays = [];
+let countdown;
 
-    let wordArrays = [];
+function generateRandomPhrase() {
+    const phrase = wordArrays.map(words => words[Math.floor(Math.random() * words.length)]).join(' ');
+    result.textContent = phrase;
+}
 
-    document.getElementById('confirmCount').addEventListener('click', () => {
-        const count = parseInt(document.getElementById('wordCount').value);
-        if (count >= 2 && count <= 10) {
-            step1.style.display = 'none';
-            listsContainer.innerHTML = '';
-            wordArrays = [];
-            for (let i = 0; i < count; i++) {
-                const div = document.createElement('div');
-                div.className = 'mb-3';
-                div.innerHTML = `<h5>أدخل قائمة الكلمات رقم ${i + 1}:</h5><textarea class="form-control wordList" rows="4" placeholder="اكتب كل كلمة في سطر"></textarea>`;
-                listsContainer.appendChild(div);
-            }
-            // استعادة البيانات إذا كانت محفوظة
-            if (localStorage.getItem('savedLists')) {
-                const savedData = JSON.parse(localStorage.getItem('savedLists'));
-                if (savedData.length === count) {
-                    const textareas = document.querySelectorAll('.wordList');
-                    textareas.forEach((textarea, idx) => {
-                        textarea.value = savedData[idx].join('\n');
-                    });
-                }
-            }
-            wordLists.style.display = 'block';
-        } else {
-            alert('يرجى اختيار رقم بين ٢ و١٠.');
+function startTimer() {
+    clearInterval(countdown);
+    let time = Math.floor(Math.random() * (60 - 5 + 1)) + 15;
+    timerDisplay.textContent = `${time} ثانية`;
+    generateRandomPhrase();
+    countdown = setInterval(() => {
+        time--;
+        timerDisplay.textContent = `${time} ثانية`;
+        if (time <= 0) {
+            clearInterval(countdown);
+            beepSound.play();
+            startTimer();
         }
-    });
+    }, 1000);
+}
 
-    generateButton.addEventListener('click', () => {
-        const textareas = document.querySelectorAll('.wordList');
-        let allValid = true;
+document.getElementById('confirmCount').addEventListener('click', () => {
+    const count = parseInt(document.getElementById('wordCount').value);
+    if (count >= 2 && count <= 10) {
+        step1.style.display = 'none';
+        listsContainer.innerHTML = '';
         wordArrays = [];
-
-        textareas.forEach((textarea, idx) => {
-            const words = textarea.value.trim().split('\n').map(w => w.trim()).filter(w => w);
-            if (words.length === 0) {
-                alert(`يرجى ملء قائمة الكلمات رقم ${idx + 1}.`);
-                allValid = false;
-            }
-            wordArrays.push(words);
-        });
-
-        if (allValid) {
-            // حفظ القوائم محليًا في الجهاز
-            localStorage.setItem('savedLists', JSON.stringify(wordArrays));
-            wordLists.style.display = 'none';
-            randomStep.style.display = 'block';
+        for (let i = 0; i < count; i++) {
+            const div = document.createElement('div');
+            div.className = 'mb-3';
+            div.innerHTML = `<h5>قائمة الكلمات رقم ${i + 1}:</h5><textarea class="form-control wordList" rows="4" placeholder="اكتب كل كلمة في سطر"></textarea>`;
+            listsContainer.appendChild(div);
         }
-    });
+        if (localStorage.getItem('savedLists')) {
+            const savedData = JSON.parse(localStorage.getItem('savedLists'));
+            if (savedData.length === count) {
+                document.querySelectorAll('.wordList').forEach((textarea, idx) => {
+                    textarea.value = savedData[idx].join('\n');
+                });
+            }
+        }
+        wordLists.style.display = 'block';
+    } else {
+        alert('اختر رقم بين ٢ و١٠.');
+    }
+});
 
-    randomButton.addEventListener('click', () => {
-        const phrase = wordArrays.map(words => words[Math.floor(Math.random() * words.length)]).join(' ');
-        result.textContent = phrase;
+generateButton.addEventListener('click', () => {
+    const textareas = document.querySelectorAll('.wordList');
+    let allValid = true;
+    wordArrays = [];
+    textareas.forEach((textarea, idx) => {
+        const words = textarea.value.trim().split('\n').map(w => w.trim()).filter(w => w);
+        if (words.length === 0) {
+            alert(`يرجى تعبئة قائمة الكلمات رقم ${idx + 1}.`);
+            allValid = false;
+        }
+        wordArrays.push(words);
     });
+    if (allValid) {
+        localStorage.setItem('savedLists', JSON.stringify(wordArrays));
+        wordLists.style.display = 'none';
+        randomStep.style.display = 'block';
+    }
+});
+
+startButton.addEventListener('click', () => {
+    startTimer();
+});
 </script>
 
 </body>
