@@ -3,14 +3,26 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>مولد الجمل العشوائية</title>
+<title>🎲 مولد الجمل العشوائية</title>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
 </head>
 <body class="bg-dark text-light d-flex flex-column align-items-center justify-content-center min-vh-100 p-3">
 
 <div id="step1" class="text-center w-100">
-    <h2 class="mb-3">كم عدد الكلمات التي تريد للجملة أن تحتويها؟</h2>
-    <input type="number" id="wordCount" class="form-control mb-3 w-50 mx-auto" placeholder="مثلاً: 3">
+    <h1 class="mb-3">🎲 مولد الجمل العشوائية</h1>
+    <p class="mb-4 fs-5">قم بإنشاء جمل ممتعة عشوائية عبر اختيار عدد الكلمات التي تريد للجملة أن تحتويها، ثم أدخل قوائم كلماتك الخاصة ليقوم الموقع بتركيب جملة عشوائية ممتعة في كل مرة تضغط فيها على زر العشوائي 🎲</p>
+    <label for="wordCount" class="form-label fs-5">اختر عدد الكلمات في الجملة (بين ٢ إلى ١٠):</label>
+    <select id="wordCount" class="form-select mb-3 w-50 mx-auto">
+        <option value="2">٢</option>
+        <option value="3">٣</option>
+        <option value="4">٤</option>
+        <option value="5">٥</option>
+        <option value="6">٦</option>
+        <option value="7">٧</option>
+        <option value="8">٨</option>
+        <option value="9">٩</option>
+        <option value="10">١٠</option>
+    </select>
     <button id="confirmCount" class="btn btn-primary mb-3">التالي</button>
 </div>
 
@@ -37,7 +49,7 @@
 
     document.getElementById('confirmCount').addEventListener('click', () => {
         const count = parseInt(document.getElementById('wordCount').value);
-        if (count > 0) {
+        if (count >= 2 && count <= 10) {
             step1.style.display = 'none';
             listsContainer.innerHTML = '';
             wordArrays = [];
@@ -49,7 +61,7 @@
             }
             wordLists.style.display = 'block';
         } else {
-            alert('يرجى إدخال رقم صحيح.');
+            alert('يرجى اختيار رقم بين ٢ و١٠.');
         }
     });
 
