@@ -8,14 +8,15 @@
 </head>
 <body class="bg-dark text-light d-flex flex-column align-items-center justify-content-center min-vh-100 p-3">
 
-<h2 id="title1" class="text-center mb-3">أدخل قائمة الكلمات الأولى:</h2>
-<textarea id="list1" class="form-control mb-3" placeholder="اكتب كل كلمة في سطر" rows="6"></textarea>
-<button id="next1" class="btn btn-primary mb-3">التالي</button>
+<div id="step1" class="text-center w-100">
+    <h2 class="mb-3">كم عدد الكلمات التي تريد للجملة أن تحتويها؟</h2>
+    <input type="number" id="wordCount" class="form-control mb-3 w-50 mx-auto" placeholder="مثلاً: 3">
+    <button id="confirmCount" class="btn btn-primary mb-3">التالي</button>
+</div>
 
-<div id="secondStep" style="display:none;" class="text-center w-100">
-    <h2 id="title2" class="mb-3">أدخل قائمة الكلمات الثانية:</h2>
-    <textarea id="list2" class="form-control mb-3" placeholder="اكتب كل كلمة في سطر" rows="6"></textarea>
-    <button id="next2" class="btn btn-primary mb-3">التالي</button>
+<div id="wordLists" style="display:none;" class="text-center w-100">
+    <div id="listsContainer"></div>
+    <button id="generateButton" class="btn btn-primary mt-3">التالي</button>
 </div>
 
 <div id="randomStep" style="display:none;" class="text-center">
@@ -24,48 +25,57 @@
 </div>
 
 <script>
-    const next1 = document.getElementById('next1');
-    const next2 = document.getElementById('next2');
-    const randomButton = document.getElementById('randomButton');
-    const secondStep = document.getElementById('secondStep');
+    const step1 = document.getElementById('step1');
+    const wordLists = document.getElementById('wordLists');
+    const listsContainer = document.getElementById('listsContainer');
+    const generateButton = document.getElementById('generateButton');
     const randomStep = document.getElementById('randomStep');
+    const randomButton = document.getElementById('randomButton');
     const result = document.getElementById('result');
-    const title1 = document.getElementById('title1');
-    const title2 = document.getElementById('title2');
-    let words1 = [];
-    let words2 = [];
 
-    next1.addEventListener('click', () => {
-        const text = document.getElementById('list1').value.trim();
-        words1 = text.split('\n').map(word => word.trim()).filter(word => word);
-        if (words1.length > 0) {
-            document.getElementById('list1').style.display = 'none';
-            next1.style.display = 'none';
-            title1.style.display = 'none';
-            secondStep.style.display = 'block';
+    let wordArrays = [];
+
+    document.getElementById('confirmCount').addEventListener('click', () => {
+        const count = parseInt(document.getElementById('wordCount').value);
+        if (count > 0) {
+            step1.style.display = 'none';
+            listsContainer.innerHTML = '';
+            wordArrays = [];
+            for (let i = 0; i < count; i++) {
+                const div = document.createElement('div');
+                div.className = 'mb-3';
+                div.innerHTML = `<h5>أدخل قائمة الكلمات رقم ${i + 1}:</h5><textarea class="form-control wordList" rows="4" placeholder="اكتب كل كلمة في سطر"></textarea>`;
+                listsContainer.appendChild(div);
+            }
+            wordLists.style.display = 'block';
         } else {
-            alert('يرجى إدخال قائمة كلمات أولى على الأقل.');
+            alert('يرجى إدخال رقم صحيح.');
         }
     });
 
-    next2.addEventListener('click', () => {
-        const text = document.getElementById('list2').value.trim();
-        words2 = text.split('\n').map(word => word.trim()).filter(word => word);
-        if (words2.length > 0) {
-            document.getElementById('list2').style.display = 'none';
-            next2.style.display = 'none';
-            title2.style.display = 'none';
-            secondStep.style.display = 'none';
+    generateButton.addEventListener('click', () => {
+        const textareas = document.querySelectorAll('.wordList');
+        let allValid = true;
+        wordArrays = [];
+
+        textareas.forEach((textarea, idx) => {
+            const words = textarea.value.trim().split('\n').map(w => w.trim()).filter(w => w);
+            if (words.length === 0) {
+                alert(`يرجى ملء قائمة الكلمات رقم ${idx + 1}.`);
+                allValid = false;
+            }
+            wordArrays.push(words);
+        });
+
+        if (allValid) {
+            wordLists.style.display = 'none';
             randomStep.style.display = 'block';
-        } else {
-            alert('يرجى إدخال قائمة كلمات ثانية على الأقل.');
         }
     });
 
     randomButton.addEventListener('click', () => {
-        const word1 = words1[Math.floor(Math.random() * words1.length)];
-        const word2 = words2[Math.floor(Math.random() * words2.length)];
-        result.textContent = `${word1} ${word2}`;
+        const phrase = wordArrays.map(words => words[Math.floor(Math.random() * words.length)]).join(' ');
+        result.textContent = phrase;
     });
 </script>
 
