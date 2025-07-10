@@ -61,6 +61,16 @@
                 div.innerHTML = `<h5>أدخل قائمة الكلمات رقم ${i + 1}:</h5><textarea class="form-control wordList" rows="4" placeholder="اكتب كل كلمة في سطر"></textarea>`;
                 listsContainer.appendChild(div);
             }
+            // استعادة البيانات إذا كانت محفوظة
+            if (localStorage.getItem('savedLists')) {
+                const savedData = JSON.parse(localStorage.getItem('savedLists'));
+                if (savedData.length === count) {
+                    const textareas = document.querySelectorAll('.wordList');
+                    textareas.forEach((textarea, idx) => {
+                        textarea.value = savedData[idx].join('\n');
+                    });
+                }
+            }
             wordLists.style.display = 'block';
         } else {
             alert('يرجى اختيار رقم بين ٢ و١٠.');
@@ -82,6 +92,8 @@
         });
 
         if (allValid) {
+            // حفظ القوائم محليًا في الجهاز
+            localStorage.setItem('savedLists', JSON.stringify(wordArrays));
             wordLists.style.display = 'none';
             randomStep.style.display = 'block';
         }
